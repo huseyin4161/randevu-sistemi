@@ -22,7 +22,7 @@
 //    activate'te tamamen silinir, yeni SW beklemeden devralır.
 // =============================================================
 
-const SURUM = "v1";
+const SURUM = "v2";
 const CACHE_ADI = `randevu-${SURUM}`;
 const SDK_CACHE = "firebase-sdk";
 
@@ -33,6 +33,7 @@ const KABUK = [
   "./css/stil.css",
   "./js/app.js",
   "./js/db.js",
+  "./js/auth.js",
   "./js/firebase-config.js",
   "./manifest.json",
   "./ikon/ikon-192.png",

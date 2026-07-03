@@ -15,7 +15,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 // Kalıcı yerel cache: çevrimdışıyken daha önce görülen veriler
 // okunabilir, yapılan değişiklikler bağlantı gelince otomatik
@@ -187,10 +187,16 @@ export async function calisanEkle(veri) {
   });
 }
 
+export async function calisanGuncelle(id, degisiklikler) {
+  return updateDoc(doc(db, COL.calisanlar, id), degisiklikler);
+}
+
 export async function calisanListesi() {
   const q = query(collection(db, COL.calisanlar), where("aktif", "==", true));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => a.ad.localeCompare(b.ad, "tr"));
 }
 
 // =============================================================

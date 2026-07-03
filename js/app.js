@@ -4,6 +4,7 @@
 // =============================================================
 
 import * as veri from "./db.js";
+import { girisIzle, girisYap, cikisYap, hataMesaji } from "./auth.js";
 
 // ---------- Durum ----------
 const durum = {
@@ -14,8 +15,11 @@ const durum = {
   calisanlar: [],
   musteriler: [],
   duzenlenenId: null,        // dialog açıkken düzenlenen randevu id'si
-  duzenlenenMusteriId: null  // müşteri kartında düzenlenen müşteri id'si
+  duzenlenenMusteriId: null, // müşteri kartında düzenlenen müşteri id'si
+  calisanFiltre: ""          // takvimde seçili çalışan (boş = tümü)
 };
+
+const calisanAdi = (id) => durum.calisanlar.find(c => c.id === id)?.ad ?? "";
 
 const GUN_ADLARI = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 const DURUM_ETIKET = { onayli: "Onaylı", beklemede: "Beklemede", iptal: "İptal" };
@@ -63,23 +67,29 @@ async function ciz() {
   }
 }
 
+// Takvimdeki çalışan filtresini uygula (boş = tümü)
+const filtreUygula = (liste) =>
+  durum.calisanFiltre ? liste.filter(r => r.calisanId === durum.calisanFiltre) : liste;
+
 async function gunCiz() {
-  const randevular = await veri.gununRandevulari(fmtISO(durum.tarih));
+  const randevular = filtreUygula(await veri.gununRandevulari(fmtISO(durum.tarih)));
   const baslik = `<h2 class="gun-baslik">${fmtUzun(durum.tarih)}</h2>`;
   if (randevular.length === 0) {
     icerik.innerHTML = baslik + `<p class="bos-mesaj">Bu gün için randevu yok.<br>"+ Yeni Randevu" ile ekleyebilirsin.</p>`;
     return;
   }
-  icerik.innerHTML = baslik + randevular.map(r => `
+  icerik.innerHTML = baslik + randevular.map(r => {
+    const calisan = calisanAdi(r.calisanId);
+    return `
     <div class="randevu-kart ${r.durum}" data-id="${r.id}">
       <div class="r-saat">${r.saat}<small>${bitisSaati(r.saat, r.sureDk)}</small></div>
       <div class="r-bilgi">
         <div class="r-musteri">${kacir(r.musteriAdi)}</div>
-        <div class="r-detay">${kacir(r.hizmetAdi || "—")}${r.telefon ? " · " + kacir(r.telefon) : ""}${r.not ? " · " + kacir(r.not) : ""}</div>
+        <div class="r-detay">${kacir(r.hizmetAdi || "—")}${calisan ? " · 🧑‍💼 " + kacir(calisan) : ""}${r.telefon ? " · " + kacir(r.telefon) : ""}${r.not ? " · " + kacir(r.not) : ""}</div>
       </div>
       <span class="r-durum ${r.durum}">${DURUM_ETIKET[r.durum] || r.durum}</span>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 
   icerik.querySelectorAll(".randevu-kart").forEach(k =>
     k.addEventListener("click", () => randevuDuzenle(k.dataset.id, randevular)));
@@ -88,7 +98,7 @@ async function gunCiz() {
 async function haftaCiz() {
   const basi = haftaBasi(durum.tarih);
   const sonu = gunEkle(basi, 6);
-  const randevular = await veri.aralikRandevulari(fmtISO(basi), fmtISO(sonu));
+  const randevular = filtreUygula(await veri.aralikRandevulari(fmtISO(basi), fmtISO(sonu)));
   const bugunISO = fmtISO(new Date());
 
   const gunler = Array.from({ length: 7 }, (_, i) => {
@@ -180,11 +190,14 @@ function randevuDuzenle(id, liste) {
 
 // Aynı gün/saatte çakışma var mı? (uyarır ama engellemez —
 // salon isterse bilerek üst üste randevu alabilir)
-async function cakismaKontrol(tarih, saat, sureDk, haricId) {
+// İki randevu da farklı çalışanlara atanmışsa çakışma sayılmaz;
+// biri atanmamışsa (herkes olabilir) çakışma uyarısı verilir.
+async function cakismaKontrol(tarih, saat, sureDk, haricId, calisanId) {
   const gunun = await veri.gununRandevulari(tarih);
   const bas = saatToDk(saat), bit = bas + sureDk;
   return gunun.filter(r => {
     if (r.id === haricId || r.durum === "iptal") return false;
+    if (calisanId && r.calisanId && r.calisanId !== calisanId) return false;
     const rBas = saatToDk(r.saat), rBit = rBas + (r.sureDk || 30);
     return bas < rBit && rBas < bit;
   });
@@ -213,7 +226,7 @@ async function randevuKaydet(e) {
     // "Kaydet" derse kabul edip kaydet
     const uyari = el("fUyari");
     if (uyari.hidden && kayit.durum !== "iptal") {
-      const cakisanlar = await cakismaKontrol(kayit.tarih, kayit.saat, kayit.sureDk, durum.duzenlenenId);
+      const cakisanlar = await cakismaKontrol(kayit.tarih, kayit.saat, kayit.sureDk, durum.duzenlenenId, kayit.calisanId);
       if (cakisanlar.length > 0) {
         uyari.textContent = `⚠️ Bu saatte çakışan randevu var: ${cakisanlar.map(c => `${c.saat} ${c.musteriAdi}`).join(", ")}. Yine de kaydetmek için tekrar "Kaydet"e bas.`;
         uyari.hidden = false;
@@ -268,6 +281,61 @@ function hizmetListesiniCiz() {
       durum.hizmetler = await veri.hizmetListesi();
       hizmetListesiniCiz();
     }));
+}
+
+function calisanListesiniCiz() {
+  const ul = el("calisanListe");
+  if (durum.calisanlar.length === 0) {
+    ul.innerHTML = `<li class="h-detay">Henüz çalışan eklenmedi.</li>`;
+    return;
+  }
+  ul.innerHTML = durum.calisanlar.map(c => `
+    <li>
+      <span>${kacir(c.ad)} <span class="h-detay">· ${c.calismaSaatleri?.baslangic ?? "09:00"}–${c.calismaSaatleri?.bitis ?? "19:00"}</span></span>
+      <button class="hizmet-sil" data-id="${c.id}">Kaldır</button>
+    </li>
+  `).join("");
+  ul.querySelectorAll(".hizmet-sil").forEach(b =>
+    b.addEventListener("click", async () => {
+      if (!confirm("Bu çalışan listeden kaldırılacak (eski randevular etkilenmez). Emin misin?")) return;
+      await veri.calisanGuncelle(b.dataset.id, { aktif: false });
+      durum.calisanlar = await veri.calisanListesi();
+      calisanListesiniCiz();
+      calisanFiltresiniKur();
+    }));
+}
+
+async function calisanKaydet(e) {
+  e.preventDefault();
+  await veri.calisanEkle({
+    ad: el("cAd").value.trim(),
+    calismaSaatleri: {
+      baslangic: el("cBaslangic").value || "09:00",
+      bitis: el("cBitis").value || "19:00"
+    }
+  });
+  el("calisanForm").reset();
+  el("cBaslangic").value = "09:00";
+  el("cBitis").value = "19:00";
+  durum.calisanlar = await veri.calisanListesi();
+  calisanListesiniCiz();
+  calisanFiltresiniKur();
+}
+
+// Takvim üstündeki çalışan filtresi — çalışan yoksa gizli kalır
+function calisanFiltresiniKur() {
+  const sec = el("calisanFiltre");
+  if (durum.calisanlar.length === 0) {
+    sec.hidden = true;
+    durum.calisanFiltre = "";
+    return;
+  }
+  sec.hidden = false;
+  sec.innerHTML =
+    `<option value="">Tüm çalışanlar</option>` +
+    durum.calisanlar.map(c =>
+      `<option value="${c.id}" ${c.id === durum.calisanFiltre ? "selected" : ""}>${kacir(c.ad)}</option>`
+    ).join("");
 }
 
 async function hizmetKaydet(e) {
@@ -474,14 +542,54 @@ async function baslat() {
 
   el("hizmetlerBtn").addEventListener("click", () => {
     hizmetListesiniCiz();
+    calisanListesiniCiz();
     el("hizmetDialog").showModal();
   });
   el("hizmetForm").addEventListener("submit", hizmetKaydet);
+  el("calisanForm").addEventListener("submit", calisanKaydet);
   el("hizmetKapatBtn").addEventListener("click", () => el("hizmetDialog").close());
+  el("calisanFiltre").addEventListener("change", (e) => {
+    durum.calisanFiltre = e.target.value;
+    ciz();
+  });
+  calisanFiltresiniKur();
 
   await ciz();
 }
 
-baslat().catch(e => {
-  icerik.innerHTML = `<p class="bos-mesaj">Uygulama başlatılamadı: ${e.message}</p>`;
+// =============================================================
+// GİRİŞ KAPISI — uygulama ancak oturum açılınca başlar
+// =============================================================
+
+let basladiMi = false;
+
+el("girisForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = el("girisBtn");
+  const hata = el("gHata");
+  btn.disabled = true;
+  hata.hidden = true;
+  try {
+    await girisYap(el("gEposta").value.trim(), el("gSifre").value);
+    // girisIzle tetiklenir, ekran orada açılır
+  } catch (e2) {
+    hata.textContent = hataMesaji(e2);
+    hata.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+el("cikisBtn").addEventListener("click", () => cikisYap());
+
+girisIzle((kullanici) => {
+  const girisli = !!kullanici;
+  el("girisEkrani").hidden = girisli;
+  el("uygulama").hidden = !girisli;
+  if (girisli && !basladiMi) {
+    basladiMi = true;
+    baslat().catch(e => {
+      icerik.innerHTML = `<p class="bos-mesaj">Uygulama başlatılamadı: ${e.message}</p>`;
+    });
+  }
 });

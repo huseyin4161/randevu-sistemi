@@ -181,6 +181,27 @@ dialog input:focus, dialog select:focus, dialog textarea:focus {
   font-size: 13px;
 }
 
+/* ---------- Tanımlar penceresi ---------- */
+.tanim-baslik {
+  font-size: 14px;
+  margin: 18px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cizgi);
+}
+dialog h2 + .tanim-baslik { border-top: none; padding-top: 0; margin-top: 0; }
+.tanim-not { font-size: 12px; color: var(--metin-soluk); margin: 0 0 8px; }
+
+/* ---------- Çalışan filtresi ---------- */
+#calisanFiltre {
+  padding: 7px 8px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  background: var(--kart);
+  font-size: 14px;
+  color: var(--metin);
+}
+#calisanFiltre[hidden] { display: none; }
+
 /* ---------- Hizmet listesi ---------- */
 .hizmet-liste { list-style: none; padding: 0; margin: 0 0 14px; max-height: 240px; overflow-y: auto; }
 .hizmet-liste li {
@@ -239,6 +260,38 @@ dialog input:focus, dialog select:focus, dialog textarea:focus {
   border-bottom: 1px solid var(--cizgi);
   font-size: 14px;
 }
+
+/* ---------- Giriş ekranı ---------- */
+#girisEkrani {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#girisEkrani[hidden] { display: none; }
+.giris-kutu {
+  background: var(--kart);
+  border: 1px solid var(--cizgi);
+  border-radius: 14px;
+  padding: 28px 24px;
+  width: min(360px, 100%);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+.giris-kutu h2 { margin: 0 0 4px; font-size: 20px; }
+.giris-aciklama { color: var(--metin-soluk); font-size: 14px; margin: 0 0 16px; }
+.giris-kutu label { display: block; font-size: 13px; color: var(--metin-soluk); margin-bottom: 12px; }
+.giris-kutu input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+}
+.giris-kutu input:focus { outline: 2px solid var(--ana); border-color: transparent; }
+.giris-kutu button { width: 100%; padding: 11px; font-size: 15px; margin-top: 4px; }
 
 /* ---------- Dar ekran ---------- */
 @media (max-width: 480px) {

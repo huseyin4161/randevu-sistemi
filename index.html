@@ -15,12 +15,30 @@
   <link rel="stylesheet" href="css/stil.css">
 </head>
 <body>
+  <!-- GİRİŞ EKRANI — oturum yoksa uygulamanın yerine gösterilir -->
+  <div id="girisEkrani" hidden>
+    <form id="girisForm" class="giris-kutu">
+      <h2>🔐 Giriş</h2>
+      <p class="giris-aciklama">Randevu sistemine erişmek için giriş yap.</p>
+      <label>E-posta
+        <input type="email" id="gEposta" required autocomplete="username">
+      </label>
+      <label>Şifre
+        <input type="password" id="gSifre" required autocomplete="current-password">
+      </label>
+      <p id="gHata" class="uyari" hidden></p>
+      <button type="submit" id="girisBtn" class="birincil">Giriş Yap</button>
+    </form>
+  </div>
+
+  <div id="uygulama" hidden>
   <header class="ust-bar">
     <h1 id="salonAdi">Randevu Sistemi</h1>
     <div class="ust-butonlar">
       <button id="musterilerBtn" class="ikincil">👥 Müşteriler</button>
-      <button id="hizmetlerBtn" class="ikincil" title="Hizmetleri yönet">⚙️ Hizmetler</button>
+      <button id="hizmetlerBtn" class="ikincil" title="Hizmet ve çalışan tanımları">⚙️ Tanımlar</button>
       <button id="yeniRandevuBtn" class="birincil">+ Yeni Randevu</button>
+      <button id="cikisBtn" class="ikincil" title="Oturumu kapat">Çıkış</button>
     </div>
   </header>
 
@@ -31,6 +49,7 @@
       <input type="date" id="tarihSec">
       <button id="sonrakiBtn" class="ikincil">›</button>
     </div>
+    <select id="calisanFiltre" title="Çalışana göre filtrele" hidden></select>
     <div class="gorunum-sec">
       <button id="gunGorunumBtn" class="sekme aktif">Günlük</button>
       <button id="haftaGorunumBtn" class="sekme">Haftalık</button>
@@ -40,6 +59,7 @@
   <main id="icerik">
     <p class="yukleniyor">Yükleniyor…</p>
   </main>
+  </div> <!-- /uygulama -->
 
   <!-- RANDEVU EKLEME / DÜZENLEME PENCERESİ -->
   <dialog id="randevuDialog">
@@ -93,9 +113,11 @@
     </form>
   </dialog>
 
-  <!-- HİZMET YÖNETİMİ PENCERESİ -->
+  <!-- TANIMLAR PENCERESİ (hizmetler + çalışanlar) -->
   <dialog id="hizmetDialog">
-    <h2>Hizmetler</h2>
+    <h2>⚙️ Tanımlar</h2>
+
+    <h3 class="tanim-baslik">Hizmetler</h3>
     <ul id="hizmetListe" class="hizmet-liste"></ul>
     <form id="hizmetForm">
       <div class="yanyana">
@@ -110,10 +132,34 @@
         <input type="number" id="hFiyat" min="0" step="1">
       </label>
       <div class="dialog-butonlar">
-        <button type="button" id="hizmetKapatBtn" class="ikincil">Kapat</button>
         <button type="submit" class="birincil">Hizmet Ekle</button>
       </div>
     </form>
+
+    <h3 class="tanim-baslik">Çalışanlar</h3>
+    <p class="tanim-not">Tek kişilik işletmede boş bırakılabilir — çalışan eklenirse
+    randevu formunda çalışan seçimi ve takvimde çalışan filtresi görünür.</p>
+    <ul id="calisanListe" class="hizmet-liste"></ul>
+    <form id="calisanForm">
+      <label>Ad *
+        <input type="text" id="cAd" required placeholder="örn. Ayşe">
+      </label>
+      <div class="yanyana">
+        <label>Mesai başlangıcı
+          <input type="time" id="cBaslangic" value="09:00">
+        </label>
+        <label>Mesai bitişi
+          <input type="time" id="cBitis" value="19:00">
+        </label>
+      </div>
+      <div class="dialog-butonlar">
+        <button type="submit" class="birincil">Çalışan Ekle</button>
+      </div>
+    </form>
+
+    <div class="dialog-butonlar">
+      <button type="button" id="hizmetKapatBtn" class="ikincil">Kapat</button>
+    </div>
   </dialog>
 
   <!-- MÜŞTERİ KARTI PENCERESİ -->
