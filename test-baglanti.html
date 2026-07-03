@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Bağlantı Testi</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    .kutu { padding: 16px; border-radius: 8px; margin: 12px 0; }
+    .bekliyor { background: #fff3cd; }
+    .basarili { background: #d4edda; }
+    .hata { background: #f8d7da; white-space: pre-wrap; font-size: 14px; }
+    button { padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🔌 Firebase Bağlantı Testi</h1>
+  <p>Bu sayfa geçicidir — Firebase kurulumunun doğru yapıldığını kontrol eder. Uygulama hazır olunca silinecek.</p>
+  <button id="testBtn">Testi Başlat</button>
+  <div id="sonuc"></div>
+
+  <script type="module">
+    const sonuc = document.getElementById("sonuc");
+    const goster = (mesaj, sinif) => {
+      sonuc.innerHTML += `<div class="kutu ${sinif}">${mesaj}</div>`;
+    };
+
+    document.getElementById("testBtn").addEventListener("click", async () => {
+      sonuc.innerHTML = "";
+      goster("⏳ Firebase'e bağlanılıyor...", "bekliyor");
+      try {
+        const dbMod = await import("./js/db.js");
+        goster("✅ Firebase SDK yüklendi, yapılandırma okundu.", "basarili");
+
+        // Test hizmeti ekle ve geri oku
+        const ref = await dbMod.hizmetEkle({ ad: "TEST — Silinecek", sureDk: 30 });
+        goster("✅ Firestore'a yazma başarılı (hizmetler koleksiyonu).", "basarili");
+
+        const liste = await dbMod.hizmetListesi();
+        goster(`✅ Firestore'dan okuma başarılı — ${liste.length} hizmet bulundu.`, "basarili");
+
+        // Test kaydını pasife çek
+        await dbMod.hizmetGuncelle(ref.id, { aktif: false });
+        goster("✅ Güncelleme başarılı. <strong>Kurulum tamam! 🎉</strong>", "basarili");
+      } catch (e) {
+        goster("❌ HATA:\n" + (e.message || e), "hata");
+        if (String(e).includes("permission")) {
+          goster("İpucu: Firestore güvenlik kuralları yazmaya izin vermiyor. KURULUM.md'deki 'Güvenlik Kuralları' adımına bak.", "hata");
+        }
+        if (String(e).includes("api-key") || String(e).includes("apiKey")) {
+          goster("İpucu: js/firebase-config.js dosyasındaki değerler henüz doldurulmamış görünüyor.", "hata");
+        }
+      }
+    });
+  </script>
+</body>
+</html>

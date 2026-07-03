@@ -1,0 +1,248 @@
+/* ============================================================
+   RANDEVU SİSTEMİ — GENEL STİL
+   Mobil öncelikli; sekreter telefonda ya da masaüstünde kullanır.
+   ============================================================ */
+
+:root {
+  --ana: #7c3aed;          /* mor — salon/berber için nötr şık ton */
+  --ana-koyu: #6d28d9;
+  --ana-acik: #ede9fe;
+  --zemin: #f8f7fb;
+  --kart: #ffffff;
+  --metin: #1f2937;
+  --metin-soluk: #6b7280;
+  --cizgi: #e5e7eb;
+  --onayli: #16a34a;
+  --beklemede: #d97706;
+  --iptal: #9ca3af;
+  --tehlike: #dc2626;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--zemin);
+  color: var(--metin);
+}
+
+/* ---------- Üst bar ---------- */
+.ust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--kart);
+  border-bottom: 1px solid var(--cizgi);
+}
+.ust-bar h1 { font-size: 18px; margin: 0; }
+.ust-butonlar { display: flex; gap: 8px; }
+
+/* ---------- Takvim gezinme barı ---------- */
+.takvim-bar[hidden] { display: none; }
+.takvim-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px;
+}
+.tarih-nav { display: flex; gap: 6px; align-items: center; }
+.tarih-nav input[type="date"] {
+  padding: 7px 8px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  background: var(--kart);
+  font-size: 14px;
+}
+.gorunum-sec { display: flex; border: 1px solid var(--cizgi); border-radius: 8px; overflow: hidden; }
+
+/* ---------- Butonlar ---------- */
+button {
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.birincil { background: var(--ana); color: #fff; }
+.birincil:hover { background: var(--ana-koyu); }
+.ikincil { background: var(--kart); border-color: var(--cizgi); color: var(--metin); }
+.ikincil:hover { background: var(--ana-acik); }
+.tehlike { background: #fff; border-color: var(--tehlike); color: var(--tehlike); }
+.tehlike:hover { background: #fef2f2; }
+.sekme { background: var(--kart); border: none; border-radius: 0; padding: 8px 16px; }
+.sekme.aktif { background: var(--ana); color: #fff; }
+
+/* ---------- İçerik ---------- */
+main { padding: 0 16px 32px; max-width: 1100px; margin: 0 auto; }
+.yukleniyor, .bos-mesaj { text-align: center; color: var(--metin-soluk); padding: 40px 0; }
+
+/* ---------- Günlük görünüm: randevu kartları ---------- */
+.gun-baslik { font-size: 16px; margin: 8px 0 12px; }
+.randevu-kart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--kart);
+  border: 1px solid var(--cizgi);
+  border-left: 4px solid var(--onayli);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.randevu-kart:hover { border-color: var(--ana); }
+.randevu-kart.beklemede { border-left-color: var(--beklemede); }
+.randevu-kart.iptal { border-left-color: var(--iptal); opacity: 0.55; }
+.randevu-kart.iptal .r-musteri { text-decoration: line-through; }
+.r-saat { font-weight: 700; min-width: 88px; font-variant-numeric: tabular-nums; }
+.r-saat small { display: block; font-weight: 400; color: var(--metin-soluk); }
+.r-bilgi { flex: 1; min-width: 0; }
+.r-musteri { font-weight: 600; }
+.r-detay { font-size: 13px; color: var(--metin-soluk); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.r-durum { font-size: 12px; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+.r-durum.onayli { background: #dcfce7; color: var(--onayli); }
+.r-durum.beklemede { background: #fef3c7; color: var(--beklemede); }
+.r-durum.iptal { background: #f3f4f6; color: var(--iptal); }
+
+/* ---------- Haftalık görünüm ---------- */
+.hafta-kaydirici { overflow-x: auto; }
+.hafta-tablo {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(130px, 1fr));
+  gap: 8px;
+  min-width: 940px;
+}
+.hafta-gun { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 10px; padding: 8px; }
+.hafta-gun.bugun { border-color: var(--ana); box-shadow: 0 0 0 1px var(--ana); }
+.hafta-gun h3 { font-size: 13px; margin: 0 0 8px; text-align: center; }
+.hafta-gun h3 small { display: block; color: var(--metin-soluk); font-weight: 400; }
+.hafta-cip {
+  font-size: 12px;
+  background: var(--ana-acik);
+  border-left: 3px solid var(--onayli);
+  border-radius: 6px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hafta-cip.beklemede { border-left-color: var(--beklemede); }
+.hafta-cip.iptal { border-left-color: var(--iptal); opacity: 0.55; text-decoration: line-through; }
+.hafta-cip:hover { background: #ddd6fe; }
+.hafta-bos { font-size: 12px; color: var(--metin-soluk); text-align: center; padding: 12px 0; }
+
+/* ---------- Dialog / formlar ---------- */
+dialog {
+  border: none;
+  border-radius: 14px;
+  padding: 20px;
+  width: min(440px, calc(100vw - 32px));
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+dialog::backdrop { background: rgba(0,0,0,0.4); }
+dialog h2 { margin: 0 0 14px; font-size: 18px; }
+dialog label { display: block; font-size: 13px; color: var(--metin-soluk); margin-bottom: 10px; }
+dialog input, dialog select, dialog textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 9px 10px;
+  font-size: 15px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--metin);
+}
+dialog input:focus, dialog select:focus, dialog textarea:focus {
+  outline: 2px solid var(--ana);
+  border-color: transparent;
+}
+.yanyana { display: flex; gap: 10px; }
+.yanyana label { flex: 1; }
+.dialog-butonlar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.uyari {
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+/* ---------- Hizmet listesi ---------- */
+.hizmet-liste { list-style: none; padding: 0; margin: 0 0 14px; max-height: 240px; overflow-y: auto; }
+.hizmet-liste li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--cizgi);
+  font-size: 14px;
+}
+.hizmet-liste .h-detay { color: var(--metin-soluk); font-size: 13px; }
+.hizmet-sil { background: none; border: none; color: var(--tehlike); font-size: 13px; padding: 4px; }
+
+/* ---------- Müşteriler ekranı ---------- */
+.musteri-arac { display: flex; gap: 8px; margin: 8px 0 14px; }
+.musteri-arac input[type="search"] {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 15px;
+  border: 1px solid var(--cizgi);
+  border-radius: 8px;
+  background: var(--kart);
+}
+.musteri-arac input[type="search"]:focus { outline: 2px solid var(--ana); border-color: transparent; }
+.musteri-kart {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--kart);
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.musteri-kart:hover { border-color: var(--ana); }
+.musteri-kart .ok { color: var(--metin-soluk); font-size: 20px; }
+
+/* ---------- Müşteri kartı: geçmiş randevular ---------- */
+.gecmis-baslik { font-size: 13px; color: var(--metin-soluk); margin: 4px 0 6px; }
+.gecmis-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  border-top: 1px solid var(--cizgi);
+}
+.gecmis-liste li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 2px;
+  border-bottom: 1px solid var(--cizgi);
+  font-size: 14px;
+}
+
+/* ---------- Dar ekran ---------- */
+@media (max-width: 480px) {
+  .ust-bar h1 { font-size: 15px; }
+  .r-saat { min-width: 70px; }
+  .yanyana { flex-direction: column; gap: 0; }
+}
