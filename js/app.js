@@ -4,7 +4,7 @@
 // =============================================================
 
 import * as veri from "./db.js";
-import { girisIzle, girisYap, cikisYap, kayitOl, kayitAcikMi, hataMesaji } from "./auth.js";
+import { girisIzle, girisYap, cikisYap, kayitOl, hataMesaji } from "./auth.js";
 
 // ---------- Durum ----------
 const durum = {
@@ -614,23 +614,14 @@ girisIzle(async (kullanici) => {
   el("girisEkrani").hidden = girisli;
   el("uygulama").hidden = !girisli;
 
-  // Oturum yoksa: kurulum tamamlanmış mı diye bak, kayıt
-  // sekmesine geçiş butonunu ona göre göster/gizle.
+  // Kayıt ol linki her zaman görünür — bu ürün tek bir işletmeye
+  // teslim edildiğinde (özel site adresi, kimseyle paylaşılmıyor)
+  // müşterinin kendi hesabını ilk kurulumda açabilmesi gerekir.
+  // Firestore'a giriş öncesi soru sorup kısıtlama uygulamak,
+  // güvenlik kuralları giriş yapmamış kullanıcıyı reddettiği için
+  // (haklı olarak) hep başarısız oluyordu — bu yüzden basitleştirildi.
   if (!girisli) {
-    try {
-      const kayitAcik = await kayitAcikMi();
-      el("kayitGecisBtn").hidden = !kayitAcik;
-      if (!kayitAcik) {
-        // Kurulum tamamlanmışsa kayıt formu asla gösterilmez,
-        // biri sekmede kalmış olsa bile giriş formuna zorla.
-        el("kayitForm").hidden = true;
-        el("girisForm").hidden = false;
-      }
-    } catch {
-      // Firestore'a erişilemezse (örn. bağlantı yok) temkinli
-      // davran: kayıt seçeneğini gösterme, sadece girişi sun.
-      el("kayitGecisBtn").hidden = true;
-    }
+    el("kayitGecisBtn").hidden = false;
   }
 
   if (girisli && !basladiMi) {
