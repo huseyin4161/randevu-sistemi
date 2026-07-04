@@ -43,14 +43,16 @@ python3 -m http.server 8080
 Sonra tarayıcıda **http://localhost:8080/test-baglanti.html** aç ve
 **"Testi Başlat"** butonuna bas. Dört yeşil ✅ görürsen kurulum tamamdır.
 
-## 5. (Daha sonra) Giriş sistemi ve kural sıkılaştırma
+## 5. Giriş sistemi ve kural sıkılaştırma
 
-Uygulama arayüzü hazır olunca:
-- **Build → Authentication → E-posta/Şifre** yöntemini açacağız
-- Salon için bir kullanıcı (e-posta + şifre) tanımlayacağız
-- `firestore.rules` içeriğini **Firestore → Rules** sekmesine yapıştıracağız
+- **Build → Authentication → E-posta/Şifre** yöntemini aç
+- `firestore.rules` içeriğini **Firestore → Rules** sekmesine yapıştır ve **Yayınla**
+  (bu kurallar "ilk hesap" kısıtını uygular — kayıt ol ekranı sadece hiç hesap
+  yokken çalışır; salon sahibi kendi hesabını uygulamadaki **Kayıt Ol** ekranından
+  kendisi oluşturur, Console'dan elle kullanıcı açman gerekmez)
 
-Bu adımları zamanı gelince birlikte yaparız — şimdilik 1-4 yeterli.
+**Önemli:** `firestore.rules` her değiştiğinde bu adımı tekrarla — dosya
+Console'a otomatik yansımaz, elle yapıştırıp yayınlaman gerekir.
 
 ---
 

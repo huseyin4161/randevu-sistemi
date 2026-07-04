@@ -4,7 +4,7 @@
 // =============================================================
 
 import * as veri from "./db.js";
-import { girisIzle, girisYap, cikisYap, hataMesaji } from "./auth.js";
+import { girisIzle, girisYap, cikisYap, kayitOl, kayitAcikMi, hataMesaji } from "./auth.js";
 
 // ---------- Durum ----------
 const durum = {
@@ -580,12 +580,59 @@ el("girisForm").addEventListener("submit", async (e) => {
   }
 });
 
+el("kayitForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = el("kayitBtn");
+  const hata = el("kHata");
+  btn.disabled = true;
+  hata.hidden = true;
+  try {
+    await kayitOl(el("kEposta").value.trim(), el("kSifre").value);
+    // girisIzle tetiklenir, ekran orada açılır
+  } catch (e2) {
+    hata.textContent = hataMesaji(e2);
+    hata.hidden = false;
+    btn.disabled = false;
+  }
+});
+
+// Giriş ↔ kayıt formu arasında geçiş (kayıt sekmesi sadece
+// kurulum tamamlanmamışsa zaten görünür olacak, aşağıda kontrol edilir)
+el("kayitGecisBtn").addEventListener("click", () => {
+  el("girisForm").hidden = true;
+  el("kayitForm").hidden = false;
+});
+el("girisGecisBtn").addEventListener("click", () => {
+  el("kayitForm").hidden = true;
+  el("girisForm").hidden = false;
+});
+
 el("cikisBtn").addEventListener("click", () => cikisYap());
 
-girisIzle((kullanici) => {
+girisIzle(async (kullanici) => {
   const girisli = !!kullanici;
   el("girisEkrani").hidden = girisli;
   el("uygulama").hidden = !girisli;
+
+  // Oturum yoksa: kurulum tamamlanmış mı diye bak, kayıt
+  // sekmesine geçiş butonunu ona göre göster/gizle.
+  if (!girisli) {
+    try {
+      const kayitAcik = await kayitAcikMi();
+      el("kayitGecisBtn").hidden = !kayitAcik;
+      if (!kayitAcik) {
+        // Kurulum tamamlanmışsa kayıt formu asla gösterilmez,
+        // biri sekmede kalmış olsa bile giriş formuna zorla.
+        el("kayitForm").hidden = true;
+        el("girisForm").hidden = false;
+      }
+    } catch {
+      // Firestore'a erişilemezse (örn. bağlantı yok) temkinli
+      // davran: kayıt seçeneğini gösterme, sadece girişi sun.
+      el("kayitGecisBtn").hidden = true;
+    }
+  }
+
   if (girisli && !basladiMi) {
     basladiMi = true;
     baslat().catch(e => {

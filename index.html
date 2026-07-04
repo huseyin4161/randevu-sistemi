@@ -28,6 +28,23 @@
       </label>
       <p id="gHata" class="uyari" hidden></p>
       <button type="submit" id="girisBtn" class="birincil">Giriş Yap</button>
+      <button type="button" id="kayitGecisBtn" class="ikincil" hidden>Hesabın yok mu? Kayıt ol</button>
+    </form>
+
+    <!-- KAYIT FORMU — sadece kurulum tamamlanmamışsa (ilk çalıştırma)
+         JS tarafından görünür yapılır; bkz. auth.js kayitAcikMi() -->
+    <form id="kayitForm" class="giris-kutu" hidden>
+      <h2>🆕 İlk Kurulum</h2>
+      <p class="giris-aciklama">Bu, sistemin ilk kullanıcısı olacak — salon sahibi/sekreter hesabı. Bir kere oluşturulunca bu form kapanır.</p>
+      <label>E-posta
+        <input type="email" id="kEposta" required autocomplete="username">
+      </label>
+      <label>Şifre (en az 6 karakter)
+        <input type="password" id="kSifre" required minlength="6" autocomplete="new-password">
+      </label>
+      <p id="kHata" class="uyari" hidden></p>
+      <button type="submit" id="kayitBtn" class="birincil">Hesabı Oluştur</button>
+      <button type="button" id="girisGecisBtn" class="ikincil">Zaten hesabım var, giriş yap</button>
     </form>
   </div>
 

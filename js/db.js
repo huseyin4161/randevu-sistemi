@@ -214,3 +214,32 @@ export async function ayarlariGetir() {
 export async function ayarlariKaydet(ayarlar) {
   return setDoc(doc(db, COL.ayarlar, "salon"), ayarlar, { merge: true });
 }
+
+// =============================================================
+// KURULUM / YETKİLİ KULLANICILAR
+// -------------------------------------------------------------
+// "Sadece ilk hesap" kaydolma kısıtlaması burada uygulanır:
+// ayarlar/kurulum belgesi yoksa sistem henüz kurulmamış demektir,
+// kayıt formu gösterilir. İlk kayıt tamamlanınca bu belge yazılır
+// ve kayıt formu bir daha görünmez (bkz. firestore.rules).
+// =============================================================
+
+export async function kurulumTamamlandiMi() {
+  const snap = await getDoc(doc(db, COL.ayarlar, "kurulum"));
+  return snap.exists();
+}
+
+// İlk kayıt sırasında çağrılır: kullanıcıyı yetkili listesine
+// ekler ve kurulumu "tamamlandı" olarak işaretler.
+export async function ilkKurulumuTamamla(uid, eposta) {
+  await setDoc(doc(db, "kullanicilar", uid), {
+    eposta: eposta,
+    rol: "sahibi",
+    olusturma: serverTimestamp()
+  });
+  await setDoc(doc(db, COL.ayarlar, "kurulum"), {
+    tamamlandi: true,
+    ilkKullanici: eposta,
+    tarih: serverTimestamp()
+  });
+}

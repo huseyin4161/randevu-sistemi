@@ -292,6 +292,7 @@ dialog h2 + .tanim-baslik { border-top: none; padding-top: 0; margin-top: 0; }
 }
 .giris-kutu input:focus { outline: 2px solid var(--ana); border-color: transparent; }
 .giris-kutu button { width: 100%; padding: 11px; font-size: 15px; margin-top: 4px; }
+.giris-kutu button.ikincil { margin-top: 10px; }
 
 /* ---------- Dar ekran ---------- */
 @media (max-width: 480px) {
